@@ -1,0 +1,15 @@
+# Dependencies & Build Outputs
+node_modules/
+dist/
+dist-ssr/
+
+# Environment Variables (Strict Credential Protection)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Logs & Editor Files
+*.log
+.DS_Store
+Thumbs.db
