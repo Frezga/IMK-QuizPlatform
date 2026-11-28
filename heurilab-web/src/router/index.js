@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '@/views/HomeView.vue'
+import MateriView from '@/views/MateriView.vue'
 import ArenaView from '@/views/ArenaView.vue'
 import LeaderboardView from '@/views/LeaderboardView.vue'
 
@@ -9,6 +10,12 @@ const routes = [
     name: 'home',
     component: HomeView,
     meta: { title: 'Beranda — HeuriLab' },
+  },
+  {
+    path: '/materi',
+    name: 'materi',
+    component: MateriView,
+    meta: { title: 'Materi 10 Heuristik — HeuriLab' },
   },
   {
     path: '/arena',

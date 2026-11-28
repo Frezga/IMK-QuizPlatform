@@ -33,7 +33,7 @@ function isActiveRoute(path) {
       <!-- Navigasi Desktop -->
       <nav class="hidden items-center gap-1 md:flex" aria-label="Navigasi utama">
         <RouterLink
-          to="/#materi"
+          to="/"
           class="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors"
           :class="
             isActiveRoute('/')
@@ -41,18 +41,18 @@ function isActiveRoute(path) {
               : 'text-[#71717A] hover:bg-[#F4F4F5] hover:text-[#18181B]'
           "
         >
-          Materi 10 Heuristik
+          Beranda
         </RouterLink>
         <RouterLink
-          to="/arena"
+          to="/materi"
           class="rounded-lg px-3 py-1.5 text-sm font-medium transition-colors"
           :class="
-            isActiveRoute('/arena')
+            isActiveRoute('/materi')
               ? 'bg-[#F4F4F5] text-[#18181B]'
               : 'text-[#71717A] hover:bg-[#F4F4F5] hover:text-[#18181B]'
           "
         >
-          Arena Kasus Interaktif
+          Materi 10 Heuristik
         </RouterLink>
         <RouterLink
           to="/leaderboard"
@@ -122,18 +122,18 @@ function isActiveRoute(path) {
     >
       <div class="flex flex-col gap-1">
         <RouterLink
-          to="/#materi"
+          to="/"
+          class="rounded-lg px-3 py-2 text-sm font-medium text-[#18181B] hover:bg-[#F4F4F5]"
+          @click="mobileMenuOpen = false"
+        >
+          Beranda
+        </RouterLink>
+        <RouterLink
+          to="/materi"
           class="rounded-lg px-3 py-2 text-sm font-medium text-[#18181B] hover:bg-[#F4F4F5]"
           @click="mobileMenuOpen = false"
         >
           Materi 10 Heuristik
-        </RouterLink>
-        <RouterLink
-          to="/arena"
-          class="rounded-lg px-3 py-2 text-sm font-medium text-[#18181B] hover:bg-[#F4F4F5]"
-          @click="mobileMenuOpen = false"
-        >
-          Arena Kasus Interaktif
         </RouterLink>
         <RouterLink
           to="/leaderboard"

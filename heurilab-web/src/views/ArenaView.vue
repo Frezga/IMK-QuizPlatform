@@ -257,7 +257,7 @@ function handleMissionSelectChange(event) {
       <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
         <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
           <RouterLink
-            to="/"
+            to="/materi"
             class="inline-flex items-center gap-1.5 rounded-lg border border-[#E4E4E7] bg-white px-3 py-1.5 text-xs font-medium text-[#18181B] transition-colors hover:border-[#18181B]"
           >
             <ArrowLeft class="h-3.5 w-3.5" :stroke-width="1.75" />
