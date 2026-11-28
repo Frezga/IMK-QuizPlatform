@@ -87,7 +87,7 @@ export const HEURISTICS_DATA = [
     missionCode: 'H5_01',
     title: 'Error Prevention',
     shortSummary: 'Cegah kesalahan fatal sebelum terjadi melalui konfirmasi tindakan destruktif dan batasan jelas.',
-    isFocus: true,
+    isFocus: false,
     theoryExplanation:
       'Lebih baik mencegah kesalahan sejak awal daripada sekadar menampilkan pesan galat setelah masalah terjadi. Hilangkan kondisi rawan salah klik (slips) atau minta konfirmasi eksplisit sebelum aksi permanen dijalankan.',
     uiIndicators: [
@@ -105,7 +105,7 @@ export const HEURISTICS_DATA = [
     missionCode: 'H6_01',
     title: 'Recognition Rather than Recall',
     shortSummary: 'Kurangi beban memori pengguna dengan membuat opsi, label, dan instruksi terlihat langsung.',
-    isFocus: true,
+    isFocus: false,
     theoryExplanation:
       'Pengguna lebih mudah mengenali elemen yang terlihat di layar daripada mengingat arti ikon abstrak atau format perintah dari satu layar ke layar lain. Sertakan label teks, petunjuk terlihat, dan riwayat konteks.',
     uiIndicators: [

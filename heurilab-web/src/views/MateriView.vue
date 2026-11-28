@@ -30,24 +30,17 @@ function isHeuristicDone(missionCode) {
 <template>
   <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6 sm:py-12">
     <!-- Header Halaman Materi -->
-    <div class="flex flex-col gap-3 border-b border-[#E4E4E7] pb-6 sm:flex-row sm:items-end sm:justify-between">
-      <div>
-        <p class="font-mono-tabular text-xs font-medium uppercase tracking-wider text-[#71717A]">
-          MODUL PEMBELAJARAN
-        </p>
-        <h1 class="mt-1 text-2xl font-semibold tracking-tight text-[#18181B]">
-          Materi 10 Heuristik
-        </h1>
-        <p class="mt-1.5 text-sm text-[#71717A]">
-          <span class="font-mono-tabular font-medium text-[#18181B]">{{ completedCount }}/10 materi selesai</span>
-          · Pilih salah satu kartu materi untuk membaca teori dan memulai simulasi kuisnya.
-        </p>
-      </div>
-
-      <div class="flex items-center gap-2 text-xs text-[#71717A]">
-        <span class="inline-block h-3 w-3 rounded-sm border-2 border-zinc-900 bg-white"></span>
-        <span>Fokus simulasi mendalam (#05 &amp; #06)</span>
-      </div>
+    <div class="border-b border-[#E4E4E7] pb-6">
+      <p class="font-mono-tabular text-xs font-medium uppercase tracking-wider text-[#71717A]">
+        MODUL PEMBELAJARAN
+      </p>
+      <h1 class="mt-1 text-2xl font-semibold tracking-tight text-[#18181B]">
+        Materi 10 Heuristik
+      </h1>
+      <p class="mt-1.5 text-sm text-[#71717A]">
+        <span class="font-mono-tabular font-medium text-[#18181B]">{{ completedCount }}/10 materi selesai</span>
+        · Pilih salah satu kartu materi untuk membaca teori dan memulai simulasi kuisnya.
+      </p>
     </div>
 
     <!-- Grid Responsif 5x2 -->
@@ -56,24 +49,13 @@ function isHeuristicDone(missionCode) {
         v-for="item in HEURISTICS_DATA"
         :key="item.number"
         type="button"
-        class="group flex h-full flex-col justify-between rounded-xl bg-[#FFFFFF] p-4 text-left transition-colors hover:bg-[#F4F4F5]"
-        :class="
-          item.isFocus
-            ? 'border-2 border-zinc-900'
-            : 'border border-[#E4E4E7] hover:border-zinc-400'
-        "
+        class="group flex h-full flex-col justify-between rounded-xl border border-[#E4E4E7] bg-[#FFFFFF] p-4 text-left transition-colors hover:border-zinc-400 hover:bg-[#F4F4F5]"
         @click="openTheoryModal(item.number)"
       >
         <div>
           <div class="flex items-center justify-between gap-2">
             <span class="font-mono-tabular text-xs font-semibold text-[#71717A]">
               {{ item.number }}
-            </span>
-            <span
-              v-if="item.isFocus"
-              class="rounded bg-[#18181B] px-1.5 py-0.5 text-[10px] font-medium text-white"
-            >
-              Fokus
             </span>
           </div>
 

@@ -60,12 +60,6 @@ const isReferenceDirectoryMode = computed(() => !props.initialHeuristicNumber)
               <span class="font-mono-tabular rounded border border-[#E4E4E7] bg-[#F4F4F5] px-2 py-0.5 text-xs font-medium text-[#18181B]">
                 #{{ activeHeuristic.number }}
               </span>
-              <span
-                v-if="activeHeuristic.isFocus"
-                class="rounded border border-[#18181B] px-2 py-0.5 text-[11px] font-medium text-[#18181B]"
-              >
-                Fokus Simulasi Mendalam
-              </span>
             </div>
             <h2 id="theory-modal-title" class="mt-2 text-lg font-semibold text-[#18181B]">
               {{ activeHeuristic.title }}

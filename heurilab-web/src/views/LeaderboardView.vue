@@ -110,12 +110,7 @@ function goToRecommendedMission() {
             <div
               v-for="item in HEURISTICS_DATA"
               :key="item.number"
-              class="rounded-lg border p-2.5"
-              :class="
-                item.isFocus
-                  ? 'border-zinc-900 bg-[#F4F4F5]'
-                  : 'border-[#E4E4E7] bg-white'
-              "
+              class="rounded-lg border border-[#E4E4E7] bg-white p-2.5"
             >
               <div class="flex items-center justify-between gap-2 text-xs">
                 <div class="flex min-w-0 items-center gap-2">
@@ -124,12 +119,6 @@ function goToRecommendedMission() {
                   </span>
                   <span class="truncate font-medium text-[#18181B]">
                     {{ item.title }}
-                  </span>
-                  <span
-                    v-if="item.isFocus"
-                    class="shrink-0 rounded bg-[#18181B] px-1.5 py-0.5 text-[10px] font-medium text-white"
-                  >
-                    Fokus
                   </span>
                 </div>
                 <span class="font-mono-tabular shrink-0 font-semibold text-[#18181B]">
@@ -272,7 +261,7 @@ function goToRecommendedMission() {
               <p class="mt-1 text-sm text-[#71717A]">
                 {{
                   completedCount >= 10
-                    ? 'Seluruh 10 heuristik telah Anda kuasai. Ulangi studi kasus fokus untuk memantapkan pemahaman.'
+                    ? 'Seluruh 10 heuristik telah Anda kuasai. Ulangi studi kasus mana saja untuk memantapkan pemahaman.'
                     : `Penguasaan prinsip ini masih ${heuristicMasteryMap[recommendedNextHeuristic.missionCode] ?? 0}%. Selesaikan simulasinya untuk menambah +100 poin.`
                 }}
               </p>
