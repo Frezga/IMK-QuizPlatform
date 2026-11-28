@@ -1,11 +1,11 @@
 <script setup>
 import { ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { Layers, Menu, X, User } from 'lucide-vue-next'
+import { Layers, Menu, X, User, LogOut } from 'lucide-vue-next'
 import { useGameSession } from '@/composables/useGameSession'
 
 const route = useRoute()
-const { currentUser, totalScore, userBadges, openGuestModal } = useGameSession()
+const { currentUser, totalScore, userBadges, openGuestModal, logoutSession } = useGameSession()
 const mobileMenuOpen = ref(false)
 
 function isActiveRoute(path) {
@@ -71,7 +71,7 @@ function isActiveRoute(path) {
       <div class="flex items-center gap-2">
         <div
           v-if="currentUser"
-          class="hidden items-center gap-2.5 rounded-full border border-[#E4E4E7] bg-[#F4F4F5] px-3.5 py-1.5 text-xs sm:flex"
+          class="hidden items-center gap-2 rounded-full border border-[#E4E4E7] bg-[#F4F4F5] py-1 pl-3.5 pr-1.5 text-xs sm:flex"
         >
           <span class="max-w-[130px] truncate font-medium text-[#18181B]">
             {{ currentUser.name }}
@@ -82,6 +82,15 @@ function isActiveRoute(path) {
             ·
             <strong class="font-semibold text-[#18181B]">{{ userBadges.length }}</strong> Badges
           </span>
+          <button
+            type="button"
+            title="Keluar atau ganti akun"
+            aria-label="Keluar dari akun"
+            class="ml-1 rounded-full p-1 text-[#71717A] transition-colors hover:bg-white hover:text-[#18181B]"
+            @click="logoutSession"
+          >
+            <LogOut class="h-3.5 w-3.5" :stroke-width="1.75" />
+          </button>
         </div>
 
         <button
@@ -138,10 +147,20 @@ function isActiveRoute(path) {
         v-if="currentUser"
         class="mt-3 flex items-center justify-between rounded-lg border border-[#E4E4E7] bg-[#F4F4F5] px-3 py-2 text-xs"
       >
-        <span class="font-medium text-[#18181B]">{{ currentUser.name }}</span>
-        <span class="tabular-nums text-[#71717A]">
-          {{ totalScore }} Poin · {{ userBadges.length }} Badges
-        </span>
+        <div>
+          <span class="font-medium text-[#18181B]">{{ currentUser.name }}</span>
+          <span class="ml-2 tabular-nums text-[#71717A]">
+            {{ totalScore }} Poin · {{ userBadges.length }} Badges
+          </span>
+        </div>
+        <button
+          type="button"
+          class="inline-flex items-center gap-1 rounded border border-[#E4E4E7] bg-white px-2 py-1 text-[11px] font-medium text-[#18181B]"
+          @click="() => { mobileMenuOpen = false; logoutSession() }"
+        >
+          <LogOut class="h-3 w-3" :stroke-width="1.75" />
+          Keluar
+        </button>
       </div>
     </div>
   </header>

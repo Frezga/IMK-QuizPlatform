@@ -36,6 +36,11 @@ export function sanitizeAlias(rawInput) {
     .slice(0, 25)
 }
 
+export function sanitizePin(rawPin) {
+  if (typeof rawPin !== 'string') return ''
+  return rawPin.replace(/\D/g, '').slice(0, 6)
+}
+
 function generateLocalUuid() {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
     return crypto.randomUUID()
@@ -216,39 +221,64 @@ export function useGameSession() {
     isLoadingSession.value = false
   }
 
-  async function registerGuest(rawName) {
+  async function loadLogsForUser(userId) {
+    if (supabase && !isFallbackMode.value) {
+      const { data: logsData, error: logsError } = await supabase
+        .from('mission_logs')
+        .select('id, user_id, heuristic_code, is_correct, attempts, time_spent_seconds, created_at')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+
+      if (!logsError && Array.isArray(logsData)) {
+        missionLogs.value = logsData
+        return
+      }
+    }
+    const allLocalLogs = readLocalJson(FALLBACK_LOGS_KEY, [])
+    missionLogs.value = allLocalLogs.filter((l) => l.user_id === userId)
+  }
+
+  async function registerGuest(rawName, rawPin) {
     const cleanName = sanitizeAlias(rawName)
+    const cleanPin = sanitizePin(rawPin)
+
     if (!cleanName) {
       return { ok: false, error: 'Nama panggilan wajib diisi (1–25 karakter).' }
+    }
+    if (cleanPin.length < 4 || cleanPin.length > 6) {
+      return { ok: false, error: 'PIN keamanan wajib terdiri dari 4–6 angka.' }
     }
 
     if (supabase && !isFallbackMode.value) {
       try {
-        const { data, error } = await supabase
-          .from('users')
-          .insert({
-            name: cleanName,
-            total_score: 0,
-            badges: [],
-          })
-          .select('id, name, total_score, badges, created_at')
-          .single()
+        const { data, error } = await supabase.rpc('register_user_with_pin', {
+          p_name: cleanName,
+          p_pin: cleanPin,
+        })
 
         if (error) {
           if (shouldFallbackFromSupabaseError(error)) {
             isFallbackMode.value = true
+          } else if ((error.message || '').includes('USERNAME_TAKEN') || error.code === '23505') {
+            return {
+              ok: false,
+              error: 'Username sudah dipakai. Gunakan tab "Masuk Akun" atau pilih nama lain.',
+            }
           } else {
-            return { ok: false, error: 'Gagal membuat sesi tamu. Silakan coba lagi.' }
+            return { ok: false, error: 'Gagal mendaftarkan akun. Silakan coba lagi.' }
           }
-        } else if (data) {
-          localStorage.setItem(USER_ID_STORAGE_KEY, data.id)
-          currentUser.value = {
-            ...data,
-            badges: normalizeBadges(data.badges),
+        } else {
+          const userRow = Array.isArray(data) ? data[0] : data
+          if (userRow) {
+            localStorage.setItem(USER_ID_STORAGE_KEY, userRow.id)
+            currentUser.value = {
+              ...userRow,
+              badges: normalizeBadges(userRow.badges),
+            }
+            missionLogs.value = []
+            showGuestLoginModal.value = false
+            return { ok: true, user: currentUser.value }
           }
-          missionLogs.value = []
-          showGuestLoginModal.value = false
-          return { ok: true, user: currentUser.value }
         }
       } catch {
         isFallbackMode.value = true
@@ -256,15 +286,26 @@ export function useGameSession() {
     }
 
     // Simpan ke fallback localStorage jika Supabase belum aktif
+    const localUsers = readLocalJson(FALLBACK_USERS_KEY, [])
+    const duplicate = localUsers.some(
+      (u) => u.name.trim().toLowerCase() === cleanName.toLowerCase()
+    )
+    if (duplicate) {
+      return {
+        ok: false,
+        error: 'Username sudah dipakai. Gunakan tab "Masuk Akun" atau pilih nama lain.',
+      }
+    }
+
     const newUser = {
       id: generateLocalUuid(),
       name: cleanName,
+      pin: cleanPin,
       total_score: 0,
       badges: [],
       created_at: new Date().toISOString(),
     }
 
-    const localUsers = readLocalJson(FALLBACK_USERS_KEY, [])
     localUsers.push(newUser)
     writeLocalJson(FALLBACK_USERS_KEY, localUsers)
     localStorage.setItem(USER_ID_STORAGE_KEY, newUser.id)
@@ -275,6 +316,78 @@ export function useGameSession() {
     return { ok: true, user: newUser }
   }
 
+  async function loginWithPin(rawName, rawPin) {
+    const cleanName = sanitizeAlias(rawName)
+    const cleanPin = sanitizePin(rawPin)
+
+    if (!cleanName) {
+      return { ok: false, error: 'Masukkan username Anda.' }
+    }
+    if (cleanPin.length < 4 || cleanPin.length > 6) {
+      return { ok: false, error: 'Masukkan PIN 4–6 angka.' }
+    }
+
+    if (supabase && !isFallbackMode.value) {
+      try {
+        const { data, error } = await supabase.rpc('login_user_with_pin', {
+          p_name: cleanName,
+          p_pin: cleanPin,
+        })
+
+        if (error) {
+          if (shouldFallbackFromSupabaseError(error)) {
+            isFallbackMode.value = true
+          } else {
+            return { ok: false, error: 'Username atau PIN tidak sesuai.' }
+          }
+        } else {
+          const userRow = Array.isArray(data) ? data[0] : data
+          if (!userRow) {
+            return { ok: false, error: 'Username atau PIN tidak sesuai.' }
+          }
+
+          localStorage.setItem(USER_ID_STORAGE_KEY, userRow.id)
+          currentUser.value = {
+            ...userRow,
+            badges: normalizeBadges(userRow.badges),
+          }
+          await loadLogsForUser(userRow.id)
+          showGuestLoginModal.value = false
+          return { ok: true, user: currentUser.value }
+        }
+      } catch {
+        isFallbackMode.value = true
+      }
+    }
+
+    // Fallback localStorage login
+    const localUsers = readLocalJson(FALLBACK_USERS_KEY, [])
+    const matched = localUsers.find(
+      (u) =>
+        u.name.trim().toLowerCase() === cleanName.toLowerCase() &&
+        u.pin === cleanPin
+    )
+    if (!matched) {
+      return { ok: false, error: 'Username atau PIN tidak sesuai.' }
+    }
+
+    localStorage.setItem(USER_ID_STORAGE_KEY, matched.id)
+    currentUser.value = {
+      ...matched,
+      badges: normalizeBadges(matched.badges),
+    }
+    await loadLogsForUser(matched.id)
+    showGuestLoginModal.value = false
+    return { ok: true, user: currentUser.value }
+  }
+
+  function logoutSession() {
+    localStorage.removeItem(USER_ID_STORAGE_KEY)
+    currentUser.value = null
+    missionLogs.value = []
+    showGuestLoginModal.value = true
+  }
+
   async function submitMissionCompletion({
     heuristicCode,
     isCorrect,
@@ -282,8 +395,11 @@ export function useGameSession() {
     timeSpentSeconds = 0,
   }) {
     if (!currentUser.value) {
-      showGuestLoginModal.value = true
-      return { pointsEarned: 0, newlyUnlockedBadges: [] }
+      return {
+        pointsEarned: 0,
+        alreadyCompleted: false,
+        newlyUnlockedBadges: [],
+      }
     }
 
     const alreadyCompleted = completedHeuristicCodes.value.includes(heuristicCode)
@@ -450,6 +566,10 @@ export function useGameSession() {
     showGuestLoginModal.value = true
   }
 
+  function closeGuestModal() {
+    showGuestLoginModal.value = false
+  }
+
   return {
     currentUser,
     missionLogs,
@@ -465,9 +585,13 @@ export function useGameSession() {
     recommendedNextHeuristic,
     initSession,
     registerGuest,
+    loginWithPin,
+    logoutSession,
     submitMissionCompletion,
     fetchClassLeaderboard,
     openGuestModal,
+    closeGuestModal,
     sanitizeAlias,
+    sanitizePin,
   }
 }
